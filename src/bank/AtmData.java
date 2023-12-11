@@ -14,4 +14,7 @@ public class AtmData {
     public String getNomorKartu() {
         return this.nomorKartu;
     }
+    public int getPin(){
+        return this.pin;
+    }
 }

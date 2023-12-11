@@ -4,44 +4,70 @@ import java.io.*;
 import java.util.Scanner;
 
 public class AtmProgram {
-    private final String FILE_NAME = "src/data_atm.txt";
-    private AtmData[] dataATMArray;
+    private final AtmData[] dataATMArray;
 
     public AtmProgram() {
+        String FILE_NAME = "src/data_atm.txt";
         dataATMArray = bacaDataATMDariFile(FILE_NAME);
 
         if (dataATMArray != null) {
             Scanner scanner = new Scanner(System.in);
+            String tempNoKartu;
+            boolean found = false;
+            AtmData tempDataAtm;
+            do {
+                System.out.print("Masukan nomor kartu ATM: ");
+                tempNoKartu = scanner.nextLine();
+                tempDataAtm = cariDataATM(tempNoKartu);
+                if (tempDataAtm != null) {
+                    found = true;
+                } else {
+                    System.out.println("Nomor kartu yang dimasukan tidak ada!");
+                    try {
+                        Thread.sleep(2000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            } while (!found);
+            boolean found2 = false;
+            do {
+                System.out.print("Masukan PIN Anda: ");
+                int tempPin = scanner.nextInt();
+                if (tempDataAtm.getPin() == tempPin){
+                    found2 = true;
+                } else {
+                    System.out.println("Pin yang anda masukan salah!");
+                    try {
+                        Thread.sleep(2000);
+                    } catch (InterruptedException e){
+                        e.printStackTrace();
+                    }
+                }
+            } while (!found2);
+
 
             while (true) {
+                try {
+                    Thread.sleep(2000);
+                } catch (InterruptedException e){
+                    e.printStackTrace();
+                }
                 tampilkanMenu();
                 int pilihan = scanner.nextInt();
 
                 switch (pilihan) {
-                    case 1:
-                        cekSaldo();
-                        break;
-                    case 2:
-                        transfer();
-                        break;
-                    case 3:
-                        tarikTunai();
-                        break;
-                    case 4:
-                        topupPulsa();
-                        break;
-                    case 5:
-                        pembayaranListrik();
-                        break;
-                    case 6:
-                        pembayaranPDAM();
-                        break;
-                    case 7:
+                    case 1 -> cekSaldo(tempNoKartu);
+                    case 2 -> transfer();
+                    case 3 -> tarikTunai();
+                    case 4 -> topupPulsa();
+                    case 5 -> pembayaranListrik();
+                    case 6 -> pembayaranPDAM();
+                    case 7 -> {
                         System.out.println("Terima kasih telah menggunakan layanan ATM. Sampai jumpa!");
                         System.exit(0);
-                        break;
-                    default:
-                        System.out.println("Pilihan tidak valid. Silakan pilih kembali.");
+                    }
+                    default -> System.out.println("Pilihan tidak valid. Silakan pilih kembali.");
                 }
             }
         } else {
@@ -61,11 +87,7 @@ public class AtmProgram {
         System.out.print("Pilih menu (1-7): ");
     }
 
-    private void cekSaldo() {
-        Scanner scanner = new Scanner(System.in);
-        System.out.print("Masukkan nomor kartu ATM: ");
-        String nomorKartu = scanner.nextLine();
-
+    private void cekSaldo(String nomorKartu) {
         AtmData dataATM = cariDataATM(nomorKartu);
 
         if (dataATM != null) {
@@ -127,14 +149,12 @@ public class AtmProgram {
                 String[] data = line.split(", ");
 
 //                 Extract values from the split data
-                String tempNomorKartu = data[0].split(": ")[1];
+                String nomorKartu = data[0].split(": ")[1];
                 int tempPin = Integer.parseInt(data[1].split(": ")[1]);
-                double tempSaldo = Double.parseDouble(data[2].split(": ")[1]);
+                double saldo = Double.parseDouble(data[2].split(": ")[1]);
 
 //                Insert into AtmData
-                String nomorKartu = tempNomorKartu;
                 int pin = Integer.parseInt(String.valueOf(tempPin));
-                double saldo = tempSaldo;
                 dataATMArray[index] = new AtmData(nomorKartu, pin, saldo);
                 index++;
 
