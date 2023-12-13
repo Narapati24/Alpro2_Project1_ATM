@@ -1,9 +1,9 @@
 package bank;
 
 public class AtmData {
-    String nomorKartu;
-    int pin;
-    double saldo;
+    private String nomorKartu;
+    private int pin;
+    private double saldo;
 
     public AtmData(String nomorKartu, int pin, double saldo) {
         this.nomorKartu = nomorKartu;

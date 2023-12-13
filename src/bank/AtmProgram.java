@@ -57,9 +57,9 @@ public class AtmProgram {
                 int pilihan = scanner.nextInt();
 
                 switch (pilihan) {
-                    case 1 -> cekSaldo(tempNoKartu);
-                    case 2 -> transfer();
-                    case 3 -> tarikTunai(tempNoKartu);
+                    case 1 -> cekSaldo(tempDataAtm);
+                    case 2 -> transfer(tempDataAtm);
+                    case 3 -> tarikTunai(tempDataAtm);
                     case 4 -> topupPulsa();
                     case 5 -> pembayaranListrik();
                     case 6 -> pembayaranPDAM();
@@ -88,27 +88,41 @@ public class AtmProgram {
         System.out.print("Pilih menu (1-7): ");
     }
 
-    private void cekSaldo(String nomorKartu) {
-        AtmData dataATM = cariDataATM(nomorKartu);
-
-        if (dataATM != null) {
-            System.out.println("Saldo saat ini: Rp." + dataATM.saldo);
-        } else {
-            System.out.println("Nomor kartu ATM tidak ditemukan.");
-        }
-        try {
-            Thread.sleep(2000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+    private void cekSaldo(AtmData dataATM) {
+            System.out.println("Saldo saat ini: Rp." + dataATM.getSaldo());
     }
 
-    private void transfer() {
-        System.out.println("Fitur transfer belum diimplementasikan.");
+    private void transfer(AtmData dataATM) {
+        AtmData targetNoKartu;
+        do {
+            System.out.print("Masukan nomor yang dituju: ");
+            String inputTargetNoKartu = scanner.nextLine();
+            targetNoKartu = cariDataATM(inputTargetNoKartu);
+            if (targetNoKartu == null) {
+                System.out.println("Nomor yang dituju tidak terdaftar");
+            }
+            try {
+                Thread.sleep(2000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        } while (targetNoKartu == null);
+        double transfer;
+        do {
+            System.out.print("Masukan nominal yang akan di Transfer: ");
+            transfer = scanner.nextDouble();
+            if (transfer > dataATM.getSaldo()) {
+                System.out.println("Nominal yang anda masukan tidak cukup");
+            } else {
+                dataATM.setSaldo(dataATM.getSaldo() - transfer);
+                targetNoKartu.setSaldo(targetNoKartu.getSaldo() + transfer);
+                System.out.println("Rp. " + transfer + " berhasil di transfer \n" +
+                        "Sisa saldo anda sebesar Rp. " + dataATM.getSaldo());
+            }
+        } while (transfer > dataATM.getSaldo());
     }
 
-    private void tarikTunai(String nomorKartu) {
-        AtmData dataATM = cariDataATM(nomorKartu);
+    private void tarikTunai(AtmData dataATM) {
         System.out.print("Masukan nominal untuk menarik tunai: ");
         double nominal = scanner.nextDouble();
         double tempSaldo = dataATM.getSaldo();
