@@ -4,7 +4,7 @@ import java.io.*;
 import java.util.Scanner;
 
 public class AtmProgram {
-    private Scanner scanner = new Scanner(System.in);
+    private final Scanner scanner = new Scanner(System.in);
     private final AtmData[] dataATMArray;
 
     public AtmProgram() {
@@ -64,6 +64,7 @@ public class AtmProgram {
                     case 5 -> pembayaranListrik();
                     case 6 -> pembayaranPDAM();
                     case 7 -> {
+                        menulisDataATMKeFile(FILE_NAME);
                         System.out.println("Terima kasih telah menggunakan layanan ATM. Sampai jumpa!");
                         System.exit(0);
                     }
@@ -136,8 +137,16 @@ public class AtmProgram {
         System.out.println("Fitur pembayaran PDAM belum diimplementasikan.");
     }
 
-    private void menulisDataATMKeFile(){
-
+    private void menulisDataATMKeFile(String namaFile){
+        StringBuilder data = new StringBuilder();
+        for (AtmData atmData : dataATMArray) {
+            data.append("Nomor Kartu: ").append(atmData.getNomorKartu()).append(", PIN: ").append(atmData.getPin()).append(", Saldo: ").append(atmData.getSaldo()).append("\n");
+        }
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(namaFile))) {
+            writer.write(data.toString());
+        } catch (IOException e){
+            e.printStackTrace();
+        }
     }
 
     private AtmData[] bacaDataATMDariFile(String namaFile) {
