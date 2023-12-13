@@ -4,44 +4,71 @@ import java.io.*;
 import java.util.Scanner;
 
 public class AtmProgram {
-    private final String FILE_NAME = "src/data_atm.txt";
-    private AtmData[] dataATMArray;
+    private final Scanner scanner = new Scanner(System.in);
+    private final AtmData[] dataATMArray;
 
     public AtmProgram() {
+        String FILE_NAME = "src/data_atm.txt";
         dataATMArray = bacaDataATMDariFile(FILE_NAME);
 
         if (dataATMArray != null) {
-            Scanner scanner = new Scanner(System.in);
+            String tempNoKartu;
+            boolean found = false;
+            AtmData tempDataAtm;
+            do {
+                System.out.print("Masukan nomor kartu ATM: ");
+                tempNoKartu = scanner.nextLine();
+                tempDataAtm = cariDataATM(tempNoKartu);
+                if (tempDataAtm != null) {
+                    found = true;
+                } else {
+                    System.out.println("Nomor kartu yang dimasukan tidak ada!");
+                    try {
+                        Thread.sleep(2000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            } while (!found);
+            boolean found2 = false;
+            do {
+                System.out.print("Masukan PIN Anda: ");
+                int tempPin = scanner.nextInt();
+                if (tempDataAtm.getPin() == tempPin){
+                    found2 = true;
+                } else {
+                    System.out.println("Pin yang anda masukan salah!");
+                    try {
+                        Thread.sleep(2000);
+                    } catch (InterruptedException e){
+                        e.printStackTrace();
+                    }
+                }
+            } while (!found2);
+
 
             while (true) {
+                try {
+                    Thread.sleep(2000);
+                } catch (InterruptedException e){
+                    e.printStackTrace();
+                }
                 tampilkanMenu();
                 int pilihan = scanner.nextInt();
 
                 switch (pilihan) {
-                    case 1:
-                        cekSaldo();
-                        break;
-                    case 2:
-                        transfer();
-                        break;
-                    case 3:
-                        tarikTunai();
-                        break;
-                    case 4:
-                        topupPulsa();
-                        break;
-                    case 5:
-                        pembayaranListrik();
-                        break;
-                    case 6:
-                        pembayaranPDAM();
-                        break;
-                    case 7:
+                    case 1 -> cekSaldo(tempDataAtm);
+                    case 2 -> transfer(tempDataAtm);
+                    case 3 -> tarikTunai(tempDataAtm);
+                    case 4 -> topupPulsa();
+                    case 5 -> pembayaranListrik();
+                    case 6 -> pembayaranPDAM();
+                    case 7 -> {
+                        menulisDataATMKeFile(FILE_NAME);
                         System.out.println("Terima kasih telah menggunakan layanan ATM. Sampai jumpa!");
                         System.exit(0);
-                        break;
-                    default:
-                        System.out.println("Pilihan tidak valid. Silakan pilih kembali.");
+                    }
+                    default -> System.out.println("Pilihan tidak valid. Silakan pilih kembali.");
                 }
             }
         } else {
@@ -61,31 +88,55 @@ public class AtmProgram {
         System.out.print("Pilih menu (1-7): ");
     }
 
-    private void cekSaldo() {
-        Scanner scanner = new Scanner(System.in);
-        System.out.print("Masukkan nomor kartu ATM: ");
-        String nomorKartu = scanner.nextLine();
+    private void cekSaldo(AtmData dataATM) {
+            System.out.println("Saldo saat ini: Rp." + dataATM.getSaldo());
+    }
 
-        AtmData dataATM = cariDataATM(nomorKartu);
+    private void transfer(AtmData dataATM) {
+        AtmData targetNoKartu;
+        do {
+            System.out.print("Masukan nomor yang dituju: ");
+            String inputTargetNoKartu = scanner.nextLine();
+            targetNoKartu = cariDataATM(inputTargetNoKartu);
+            if (targetNoKartu == null) {
+                System.out.println("Nomor yang dituju tidak terdaftar");
+            }
+            try {
+                Thread.sleep(2000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        } while (targetNoKartu == null);
+        double transfer;
+        do {
+            System.out.print("Masukan nominal yang akan di Transfer: ");
+            transfer = scanner.nextDouble();
+            if (transfer > dataATM.getSaldo()) {
+                System.out.println("Nominal yang anda masukan tidak cukup");
+            } else {
+                dataATM.setSaldo(dataATM.getSaldo() - transfer);
+                targetNoKartu.setSaldo(targetNoKartu.getSaldo() + transfer);
+                System.out.println("Rp. " + transfer + " berhasil di transfer \n" +
+                        "Sisa saldo anda sebesar Rp. " + dataATM.getSaldo());
+            }
+        } while (transfer > dataATM.getSaldo());
+    }
 
-        if (dataATM != null) {
-            System.out.println("Saldo saat ini: Rp." + dataATM.saldo);
+    private void tarikTunai(AtmData dataATM) {
+        System.out.print("Masukan nominal untuk menarik tunai: ");
+        double nominal = scanner.nextDouble();
+        double tempSaldo = dataATM.getSaldo();
+        if(nominal > tempSaldo){
+            System.out.println("Maaf Saldo anda tidak mencukupi!");
         } else {
-            System.out.println("Nomor kartu ATM tidak ditemukan.");
+            dataATM.setSaldo(tempSaldo - nominal);
+            System.out.println("Sisa saldo anda Rp. " + dataATM.getSaldo());
+            try {
+                Thread.sleep(2000);
+            } catch (InterruptedException e){
+                e.printStackTrace();
+            }
         }
-        try {
-            Thread.sleep(2000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void transfer() {
-        System.out.println("Fitur transfer belum diimplementasikan.");
-    }
-
-    private void tarikTunai() {
-        System.out.println("Fitur tarik tunai belum diimplementasikan.");
     }
 
     private void topupPulsa() {
@@ -98,6 +149,18 @@ public class AtmProgram {
 
     private void pembayaranPDAM() {
         System.out.println("Fitur pembayaran PDAM belum diimplementasikan.");
+    }
+
+    private void menulisDataATMKeFile(String namaFile){
+        StringBuilder data = new StringBuilder();
+        for (AtmData atmData : dataATMArray) {
+            data.append("Nomor Kartu: ").append(atmData.getNomorKartu()).append(", PIN: ").append(atmData.getPin()).append(", Saldo: ").append(atmData.getSaldo()).append("\n");
+        }
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(namaFile))) {
+            writer.write(data.toString());
+        } catch (IOException e){
+            e.printStackTrace();
+        }
     }
 
     private AtmData[] bacaDataATMDariFile(String namaFile) {
@@ -127,14 +190,12 @@ public class AtmProgram {
                 String[] data = line.split(", ");
 
 //                 Extract values from the split data
-                String tempNomorKartu = data[0].split(": ")[1];
+                String nomorKartu = data[0].split(": ")[1];
                 int tempPin = Integer.parseInt(data[1].split(": ")[1]);
-                double tempSaldo = Double.parseDouble(data[2].split(": ")[1]);
+                double saldo = Double.parseDouble(data[2].split(": ")[1]);
 
 //                Insert into AtmData
-                String nomorKartu = tempNomorKartu;
                 int pin = Integer.parseInt(String.valueOf(tempPin));
-                double saldo = tempSaldo;
                 dataATMArray[index] = new AtmData(nomorKartu, pin, saldo);
                 index++;
 
