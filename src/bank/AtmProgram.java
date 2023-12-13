@@ -4,6 +4,7 @@ import java.io.*;
 import java.util.Scanner;
 
 public class AtmProgram {
+    private Scanner scanner = new Scanner(System.in);
     private final AtmData[] dataATMArray;
 
     public AtmProgram() {
@@ -11,7 +12,6 @@ public class AtmProgram {
         dataATMArray = bacaDataATMDariFile(FILE_NAME);
 
         if (dataATMArray != null) {
-            Scanner scanner = new Scanner(System.in);
             String tempNoKartu;
             boolean found = false;
             AtmData tempDataAtm;
@@ -59,7 +59,7 @@ public class AtmProgram {
                 switch (pilihan) {
                     case 1 -> cekSaldo(tempNoKartu);
                     case 2 -> transfer();
-                    case 3 -> tarikTunai();
+                    case 3 -> tarikTunai(tempNoKartu);
                     case 4 -> topupPulsa();
                     case 5 -> pembayaranListrik();
                     case 6 -> pembayaranPDAM();
@@ -106,8 +106,22 @@ public class AtmProgram {
         System.out.println("Fitur transfer belum diimplementasikan.");
     }
 
-    private void tarikTunai() {
-        System.out.println("Fitur tarik tunai belum diimplementasikan.");
+    private void tarikTunai(String nomorKartu) {
+        AtmData dataATM = cariDataATM(nomorKartu);
+        System.out.print("Masukan nominal untuk menarik tunai: ");
+        double nominal = scanner.nextDouble();
+        double tempSaldo = dataATM.getSaldo();
+        if(nominal > tempSaldo){
+            System.out.println("Maaf Saldo anda tidak mencukupi!");
+        } else {
+            dataATM.setSaldo(tempSaldo - nominal);
+            System.out.println("Sisa saldo anda Rp. " + dataATM.getSaldo());
+            try {
+                Thread.sleep(2000);
+            } catch (InterruptedException e){
+                e.printStackTrace();
+            }
+        }
     }
 
     private void topupPulsa() {
@@ -120,6 +134,10 @@ public class AtmProgram {
 
     private void pembayaranPDAM() {
         System.out.println("Fitur pembayaran PDAM belum diimplementasikan.");
+    }
+
+    private void menulisDataATMKeFile(){
+
     }
 
     private AtmData[] bacaDataATMDariFile(String namaFile) {

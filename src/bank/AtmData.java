@@ -17,4 +17,12 @@ public class AtmData {
     public int getPin(){
         return this.pin;
     }
+
+    public double getSaldo(){
+        return this.saldo;
+    }
+
+    public void setSaldo(double saldo){
+        this.saldo = saldo;
+    }
 }
