@@ -162,6 +162,14 @@ public class AtmProgram {
             e.printStackTrace();
         }
     }
+    
+//    private AtmLogData[] bacaDataLogATMDariFile(AtmData dataAtm) {
+//    	try (BufferedReader br = new BufferedReader(new FileReader("src/data_log.txt"))){
+//    		
+//    	} catch (IOException e) {
+//    		e.printStackTrace();
+//    	}
+//    }
 
     private AtmData[] bacaDataATMDariFile(String namaFile) {
         try (BufferedReader br = new BufferedReader(new FileReader(namaFile))) {
