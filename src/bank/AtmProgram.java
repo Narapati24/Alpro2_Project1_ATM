@@ -9,6 +9,7 @@ public class AtmProgram {
 
     public AtmProgram() {
         String FILE_NAME = "src/data_atm.txt";
+        bacaDataLogATMDariFile();
         dataATMArray = bacaDataATMDariFile(FILE_NAME);
 
         if (dataATMArray != null) {
@@ -163,13 +164,42 @@ public class AtmProgram {
         }
     }
     
-//    private AtmLogData[] bacaDataLogATMDariFile(AtmData dataAtm) {
-//    	try (BufferedReader br = new BufferedReader(new FileReader("src/data_log.txt"))){
-//    		
-//    	} catch (IOException e) {
-//    		e.printStackTrace();
-//    	}
-//    }
+    private AtmLogData[] bacaDataLogATMDariFile() {
+    	try (BufferedReader br = new BufferedReader(new FileReader("src/data_log.txt"))){
+            String line;
+            int jumlahData = 0;
+            while ((line = br.readLine()) != null){
+                if (!line.isEmpty()){
+                    jumlahData++;
+                }
+            }
+
+            AtmLogData[] dataLogATMArray = new AtmLogData[jumlahData];
+            br.close();
+
+            BufferedReader newBr = new BufferedReader(new FileReader("src/data_log.txt"));
+            int index = 0;
+
+            while ((line = newBr.readLine()) != null){
+                if (line.isEmpty()){
+                    continue;
+                }
+
+                String[] data = line.split(", ");
+                String[] dataLog = data[1].split("],");
+
+                String nomorKartu = data[0].split(": ")[1];
+                int jumlahLog = dataLog.length;
+
+                dataLogATMArray[index] = new AtmLogData(nomorKartu, jumlahLog);
+                index++;
+            }
+            return dataLogATMArray;
+    	} catch (IOException e) {
+    		e.printStackTrace();
+            return null;
+    	}
+    }
 
     private AtmData[] bacaDataATMDariFile(String namaFile) {
         try (BufferedReader br = new BufferedReader(new FileReader(namaFile))) {
