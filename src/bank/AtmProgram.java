@@ -12,40 +12,7 @@ public class AtmProgram {
         dataATMArray = bacaDataATMDariFile(FILE_NAME);
 
         if (dataATMArray != null) {
-            String tempNoKartu;
-            boolean found = false;
-            AtmData tempDataAtm;
-            do {
-                System.out.print("Masukan nomor kartu ATM: ");
-                tempNoKartu = scanner.nextLine();
-                tempDataAtm = cariDataATM(tempNoKartu);
-                if (tempDataAtm != null) {
-                    found = true;
-                } else {
-                    System.out.println("Nomor kartu yang dimasukan tidak ada!");
-                    try {
-                        Thread.sleep(2000);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
-            } while (!found);
-            boolean found2 = false;
-            do {
-                System.out.print("Masukan PIN Anda: ");
-                int tempPin = scanner.nextInt();
-                if (tempDataAtm.getPin() == tempPin){
-                    found2 = true;
-                } else {
-                    System.out.println("Pin yang anda masukan salah!");
-                    try {
-                        Thread.sleep(2000);
-                    } catch (InterruptedException e){
-                        e.printStackTrace();
-                    }
-                }
-            } while (!found2);
-
+            AtmData tempDataAtm = login();
 
             while (true) {
                 try {
@@ -60,8 +27,8 @@ public class AtmProgram {
                     case 1 -> cekSaldo(tempDataAtm);
                     case 2 -> transfer(tempDataAtm);
                     case 3 -> tarikTunai(tempDataAtm);
-                    case 4 -> topupPulsa();
-                    case 5 -> pembayaranListrik();
+                    case 4 -> topupPulsa(tempDataAtm);
+                    case 5 -> pembayaranListrik(tempDataAtm);
                     case 6 -> pembayaranPDAM();
                     case 7 -> {
                         menulisDataATMKeFile(FILE_NAME);
@@ -88,12 +55,34 @@ public class AtmProgram {
         System.out.print("Pilih menu (1-7): ");
     }
 
+    private void tampilkanMenuTopUp() {
+        System.out.println("===== MENU TOPUP PULSA =====");
+        System.out.println("1. Rp. 5.000");
+        System.out.println("2. Rp. 10.000");
+        System.out.println("3. Rp. 25.000");
+        System.out.println("4. Rp. 50.000");
+        System.out.println("5. Isi Sendiri");
+        System.out.println("6. Cancel");
+        System.out.print("Pilih menu (1-6): ");
+    }
+
+    private void tampilkanMenuPembayaran(){
+        System.out.println("===== MENU PEMBAYARAN LISTRIK =====");
+        System.out.println("1. Rp. 50.000");
+        System.out.println("2. Rp. 100.000");
+        System.out.println("3. Rp. 250.000");
+        System.out.println("4. Rp. 500.000");
+        System.out.println("5. Cancel");
+        System.out.print("Pilih menu (1-5): ");
+    }
+
     private void cekSaldo(AtmData dataATM) {
             System.out.println("Saldo saat ini: Rp." + dataATM.getSaldo());
     }
 
     private void transfer(AtmData dataATM) {
         AtmData targetNoKartu;
+        scanner.nextLine();
         do {
             System.out.print("Masukan nomor yang dituju: ");
             String inputTargetNoKartu = scanner.nextLine();
@@ -139,12 +128,105 @@ public class AtmProgram {
         }
     }
 
-    private void topupPulsa() {
-        System.out.println("Fitur topup pulsa belum diimplementasikan.");
+    private void topupPulsa(AtmData dataAtm) {
+        System.out.print("Isikan Nomor Tujuan Top Up");
+        scanner.next();
+        int number;
+        double saldoIni = dataAtm.getSaldo();
+        boolean filled = false;
+        do {
+            tampilkanMenuTopUp();
+            number = scanner.nextInt();
+            switch (number) {
+                case (1) -> {
+                    if (saldoIni > 5500){
+                        dataAtm.setSaldo(saldoIni - 5500);
+                        filled = true;
+                    }
+                }
+                case (2) -> {
+                    if (saldoIni > 11000){
+                        dataAtm.setSaldo(saldoIni - 11000);
+                        filled = true;
+                    }
+                }
+                case (3) -> {
+                    if (saldoIni > 27500){
+                        dataAtm.setSaldo(saldoIni - 27500);
+                        filled = true;
+                    }
+                }
+                case (4) -> {
+                    if (saldoIni > 55000){
+                        dataAtm.setSaldo(saldoIni - 55000);
+                        filled = true;
+                    }
+                }
+                case (5) -> {
+                    System.out.print("Jumlah yang ingin di top up Rp. ");
+                    double jumlah = scanner.nextDouble();
+                    if (saldoIni > jumlah){
+                        dataAtm.setSaldo(saldoIni - jumlah);
+                        filled = true;
+                    }
+                }
+                case (6) -> {
+                    System.out.println();
+                    filled = true;
+                }
+                default -> System.out.println("Pilihan Tidak Valid");
+            }
+            if (number >= 1 && number <= 5 && !filled){
+                System.out.println("Saldo anda tidak mencukupi");
+            }
+        } while (!filled);
+        if (number != 6){
+            System.out.println("Top Up Berhasil");
+        }
     }
 
-    private void pembayaranListrik() {
-        System.out.println("Fitur pembayaran listrik belum diimplementasikan.");
+    private void pembayaranListrik(AtmData dataAtm) {
+        double saldo = dataAtm.getSaldo();
+        tampilkanMenuPembayaran();
+        int number = scanner.nextInt();
+        boolean filled = false;
+        do {
+            switch (number){
+                case (1) ->{
+                    if (saldo > 55000) {
+                        dataAtm.setSaldo(saldo - 55000);
+                        filled = true;
+                    }
+                }
+                case (2) ->{
+                    if (saldo > 110000) {
+                        dataAtm.setSaldo(saldo - 110000);
+                        filled = true;
+                    }
+                }
+                case (3) ->{
+                    if (saldo > 275000) {
+                        dataAtm.setSaldo(saldo - 275000);
+                        filled = true;
+                    }
+                }
+                case (4) ->{
+                    if (saldo > 550000) {
+                        dataAtm.setSaldo(saldo - 550000);
+                        filled = true;
+                    }
+                }
+                case (5) ->{
+                    System.out.println();
+                    filled = true;
+                }
+                default -> System.out.println("Nomor tidak valid");
+            }
+        } while (!filled);
+        if (number != 5){
+            System.out.println("Anda berhasil Membayar listrik! \n" +
+                    "Sisa Saldo anda sebesar: Rp." + dataAtm.getSaldo());
+        }
     }
 
     private void pembayaranPDAM() {
@@ -161,6 +243,79 @@ public class AtmProgram {
         } catch (IOException e){
             e.printStackTrace();
         }
+    }
+
+    private AtmData login(){
+        AtmData tempDataAtm;
+        boolean found = false;
+        do {
+            System.out.print("Masukan nomor kartu ATM: ");
+            String tempNoKartu = scanner.nextLine();
+            tempDataAtm = cariDataATM(tempNoKartu);
+            if (tempDataAtm != null) {
+                found = true;
+            } else {
+                System.out.println("Nomor kartu yang dimasukan tidak ada!");
+                try {
+                    Thread.sleep(2000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        } while (!found);
+        boolean found2 = false;
+        do {
+            System.out.print("Masukan PIN Anda: ");
+            int tempPin = scanner.nextInt();
+            if (tempDataAtm.getPin() == tempPin){
+                found2 = true;
+            } else {
+                System.out.println("Pin yang anda masukan salah!");
+                try {
+                    Thread.sleep(2000);
+                } catch (InterruptedException e){
+                    e.printStackTrace();
+                }
+            }
+        } while (!found2);
+        return tempDataAtm;
+    }
+    
+    private AtmLogData[] bacaDataLogATMDariFile() {
+    	try (BufferedReader br = new BufferedReader(new FileReader("src/data_log.txt"))){
+            String line;
+            int jumlahData = 0;
+            while ((line = br.readLine()) != null){
+                if (!line.isEmpty()){
+                    jumlahData++;
+                }
+            }
+
+            AtmLogData[] dataLogATMArray = new AtmLogData[jumlahData];
+            br.close();
+
+            BufferedReader newBr = new BufferedReader(new FileReader("src/data_log.txt"));
+            int index = 0;
+
+            while ((line = newBr.readLine()) != null){
+                if (line.isEmpty()){
+                    continue;
+                }
+
+                String[] data = line.split(", ");
+                String[] dataLog = data[1].split("],");
+
+                String nomorKartu = data[0].split(": ")[1];
+                int jumlahLog = dataLog.length;
+
+                dataLogATMArray[index] = new AtmLogData(nomorKartu, jumlahLog);
+                index++;
+            }
+            return dataLogATMArray;
+    	} catch (IOException e) {
+    		e.printStackTrace();
+            return null;
+    	}
     }
 
     private AtmData[] bacaDataATMDariFile(String namaFile) {
