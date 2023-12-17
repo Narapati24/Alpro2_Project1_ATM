@@ -1,6 +1,7 @@
 package bank;
 
 import java.io.*;
+import java.util.Arrays;
 import java.util.Scanner;
 
 public class AtmProgram {
@@ -9,6 +10,7 @@ public class AtmProgram {
     private final AtmData[] dataATMArray;
 
     public AtmProgram() {
+        bacaDataLogATMDariFile();
         dataATMArray = bacaDataATMDariFile(FILE_ATM);
 
         if (dataATMArray != null) {
@@ -388,12 +390,33 @@ public class AtmProgram {
                 }
 
                 String[] data = line.split(", ");
-                String[] dataLog = data[1].split("],");
+                String[] dataLog1 = data[1].split("Log: ");
+                String[] dataLog2 = dataLog1[1].split("],");
+                String[] dataEachLog = Arrays.copyOf(dataLog2, dataLog2.length-1);
 
                 String nomorKartu = data[0].split(": ")[1];
-                int jumlahLog = dataLog.length;
+                int jumlahLog = dataEachLog.length;
 
                 dataLogATMArray[index] = new AtmLogData(nomorKartu, jumlahLog);
+                for (int i = 0; i < dataEachLog.length; i++){
+                    String[] dataEachLog2 = dataEachLog[i].split(",Da");
+                    for (int u = 0; u < dataEachLog2.length; u++){
+                        String[] dataSmall = dataEachLog2[u].split(": ");
+                        for (int o = 0; o < dataSmall.length; o++){
+                            if (u % 2 == 0){
+                                dataLogATMArray[index].setLog(dataSmall[0], o);
+                                dataLogATMArray[index].setSum(dataSmall[1], o);
+                            } else {
+                                dataLogATMArray[index].setDate(dataSmall[1], o);
+                            }
+                            System.out.println(dataSmall[o] + o);
+                        }
+                    }
+                }
+                for (int i = 0; i < dataLogATMArray.length; i++){
+                    System.out.println(dataLogATMArray[i].getNomorKartu());
+                    dataLogATMArray[i].printLog();
+                }
                 index++;
             }
             return dataLogATMArray;
