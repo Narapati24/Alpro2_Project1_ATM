@@ -28,7 +28,7 @@ public class AtmProgram {
                     case 2 -> transfer(tempDataAtm);
                     case 3 -> tarikTunai(tempDataAtm);
                     case 4 -> topupPulsa(tempDataAtm);
-                    case 5 -> pembayaranListrik();
+                    case 5 -> pembayaranListrik(tempDataAtm);
                     case 6 -> pembayaranPDAM();
                     case 7 -> {
                         menulisDataATMKeFile(FILE_NAME);
@@ -66,12 +66,23 @@ public class AtmProgram {
         System.out.print("Pilih menu (1-6): ");
     }
 
+    private void tampilkanMenuPembayaran(){
+        System.out.println("===== MENU PEMBAYARAN LISTRIK =====");
+        System.out.println("1. Rp. 50.000");
+        System.out.println("2. Rp. 100.000");
+        System.out.println("3. Rp. 250.000");
+        System.out.println("4. Rp. 500.000");
+        System.out.println("5. Cancel");
+        System.out.print("Pilih menu (1-5): ");
+    }
+
     private void cekSaldo(AtmData dataATM) {
             System.out.println("Saldo saat ini: Rp." + dataATM.getSaldo());
     }
 
     private void transfer(AtmData dataATM) {
         AtmData targetNoKartu;
+        scanner.nextLine();
         do {
             System.out.print("Masukan nomor yang dituju: ");
             String inputTargetNoKartu = scanner.nextLine();
@@ -174,8 +185,48 @@ public class AtmProgram {
         }
     }
 
-    private void pembayaranListrik() {
-        System.out.println("Fitur pembayaran listrik belum diimplementasikan.");
+    private void pembayaranListrik(AtmData dataAtm) {
+        double saldo = dataAtm.getSaldo();
+        tampilkanMenuPembayaran();
+        int number = scanner.nextInt();
+        boolean filled = false;
+        do {
+            switch (number){
+                case (1) ->{
+                    if (saldo > 55000) {
+                        dataAtm.setSaldo(saldo - 55000);
+                        filled = true;
+                    }
+                }
+                case (2) ->{
+                    if (saldo > 110000) {
+                        dataAtm.setSaldo(saldo - 110000);
+                        filled = true;
+                    }
+                }
+                case (3) ->{
+                    if (saldo > 275000) {
+                        dataAtm.setSaldo(saldo - 275000);
+                        filled = true;
+                    }
+                }
+                case (4) ->{
+                    if (saldo > 550000) {
+                        dataAtm.setSaldo(saldo - 550000);
+                        filled = true;
+                    }
+                }
+                case (5) ->{
+                    System.out.println();
+                    filled = true;
+                }
+                default -> System.out.println("Nomor tidak valid");
+            }
+        } while (!filled);
+        if (number != 5){
+            System.out.println("Anda berhasil Membayar listrik! \n" +
+                    "Sisa Saldo anda sebesar: Rp." + dataAtm.getSaldo());
+        }
     }
 
     private void pembayaranPDAM() {
