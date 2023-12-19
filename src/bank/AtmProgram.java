@@ -8,10 +8,11 @@ public class AtmProgram {
     private static final String FILE_ATM = "src/data_atm.txt";
     private final Scanner scanner = new Scanner(System.in);
     private final AtmData[] dataATMArray;
+    private AtmLogData[] dataATMLogArray;
 
     public AtmProgram() {
-        bacaDataLogATMDariFile();
         dataATMArray = bacaDataATMDariFile(FILE_ATM);
+        dataATMLogArray = bacaDataLogATMDariFile();
 
         if (dataATMArray != null) {
             AtmData tempDataAtm = login();
@@ -28,8 +29,9 @@ public class AtmProgram {
         System.out.println("2. Transfer");
         System.out.println("3. Tarik Tunai");
         System.out.println("4. Pembayaran");
-        System.out.println("5. Keluar");
-        System.out.print("Pilih menu (1-5): ");
+        System.out.println("5. Cek History Bank");
+        System.out.println("6. Keluar");
+        System.out.print("Pilih menu (1-6): ");
     }
 
     private void tampilkanMenuPembayaran(){
@@ -87,7 +89,8 @@ public class AtmProgram {
                 case 2 -> transfer(tempDataAtm);
                 case 3 -> tarikTunai(tempDataAtm);
                 case 4 -> memilihMenuPembayaran(tempDataAtm);
-                case 5 -> {
+                case 5 -> historyAtm(tempDataAtm);
+                case 6 -> {
                     menulisDataATMKeFile(FILE_ATM);
                     System.out.println("Terima kasih telah menggunakan layanan ATM. Sampai jumpa!");
                     System.exit(0);
@@ -175,6 +178,15 @@ public class AtmProgram {
             } catch (InterruptedException e){
                 e.printStackTrace();
             }
+        }
+    }
+
+    private void historyAtm(AtmData noKartu){
+        AtmLogData log = cariDataLogATM(noKartu.getNomorKartu());
+        if (log == null) {
+            System.out.println("Anda Belum Melakukan Transaksi Apapun");
+        } else {
+            log.printLog();
         }
     }
 
@@ -384,38 +396,55 @@ public class AtmProgram {
             BufferedReader newBr = new BufferedReader(new FileReader("src/data_log.txt"));
             int index = 0;
 
-            while ((line = newBr.readLine()) != null){
-                if (line.isEmpty()){
+            while ((line = newBr.readLine()) != null) {
+                if (line.isEmpty()) {
                     continue;
                 }
 
                 String[] data = line.split(", ");
                 String[] dataLog1 = data[1].split("Log: ");
                 String[] dataLog2 = dataLog1[1].split("],");
-                String[] dataEachLog = Arrays.copyOf(dataLog2, dataLog2.length-1);
+                String[] dataEachLog = Arrays.copyOf(dataLog2, dataLog2.length - 1);
 
                 String nomorKartu = data[0].split(": ")[1];
                 int jumlahLog = dataEachLog.length;
 
                 dataLogATMArray[index] = new AtmLogData(nomorKartu, jumlahLog);
-                for (int i = 0; i < dataEachLog.length; i++){
-                    String[] dataEachLog2 = dataEachLog[i].split(",Da");
-                    for (int u = 0; u < dataEachLog2.length; u++){
-                        String[] dataSmall = dataEachLog2[u].split(": ");
-                        for (int o = 0; o < dataSmall.length; o++){
-                            if (u % 2 == 0){
-                                dataLogATMArray[index].setLog(dataSmall[0], o);
-                                dataLogATMArray[index].setSum(dataSmall[1], o);
-                            } else {
-                                dataLogATMArray[index].setDate(dataSmall[1], o);
-                            }
-                            System.out.println(dataSmall[o] + o);
-                        }
+                String[][] dataEachLog2 = new String[dataEachLog.length][0];
+                for (int i = 0; i < dataEachLog.length; i++) {
+                    dataEachLog2[i] = dataEachLog[i].split(",Da");
+                }
+
+                String[][][] dataSmall = new String[dataEachLog2.length][dataEachLog2[0].length][0];
+                for (int u = 0; u < dataEachLog2.length; u++) {
+                    for (int i = 0; i < dataEachLog2[u].length; i++){
+                        dataSmall[u][i] = dataEachLog2[u][i].split(": ");
                     }
                 }
-                for (int i = 0; i < dataLogATMArray.length; i++){
-                    System.out.println(dataLogATMArray[i].getNomorKartu());
-                    dataLogATMArray[i].printLog();
+
+                for (int i = 0; i < dataSmall.length; i++){
+                    for (int u = 0; u < dataSmall[i].length; u++){
+                        for (int p = 0; p < dataSmall[i][u].length; p++){
+//                            log Check
+                            if (dataLogATMArray[index].getLog()[i] == null){
+                                if (!dataSmall[i][u][0].equalsIgnoreCase("te")){
+                                    dataLogATMArray[index].setLog(dataSmall[i][u][0], i);
+                                }
+                            }
+//                            sum check
+                            if (dataLogATMArray[index].getSum()[i] == null){
+                                if (!dataSmall[i][u][0].equalsIgnoreCase("te")){
+                                    dataLogATMArray[index].setSum(dataSmall[i][u][1], i);
+                                }
+                            }
+//                            date check
+                            if (dataLogATMArray[index].getDate()[i] == null){
+                                if (dataSmall[i][u][0].equalsIgnoreCase("te")){
+                                    dataLogATMArray[index].setDate(dataSmall[i][u][1], i);
+                                }
+                            }
+                        }
+                    }
                 }
                 index++;
             }
@@ -477,6 +506,15 @@ public class AtmProgram {
         for (AtmData atmData : dataATMArray) {
             if (atmData != null && atmData.getNomorKartu().equals(nomorKartu)) {
                 return atmData;
+            }
+        }
+        return null;
+    }
+
+    private AtmLogData cariDataLogATM(String nomorKartu) {
+        for (AtmLogData atmLogData: dataATMLogArray) {
+            if (atmLogData != null && atmLogData.getNomorKartu().equals(nomorKartu)){
+                return atmLogData;
             }
         }
         return null;

@@ -30,4 +30,16 @@ public class AtmLogData {
     public String getNomorKartu(){
         return this.nomorKartu;
     }
+
+    public String[] getLog(){
+        return this.log;
+    }
+
+    public String[] getSum(){
+        return this.sum;
+    }
+
+    public String[] getDate(){
+        return this.date;
+    }
 }
