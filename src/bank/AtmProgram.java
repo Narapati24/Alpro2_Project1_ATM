@@ -28,10 +28,11 @@ public class AtmProgram {
         System.out.println("1. Cek Saldo");
         System.out.println("2. Transfer");
         System.out.println("3. Tarik Tunai");
-        System.out.println("4. Pembayaran");
-        System.out.println("5. Cek History Bank");
-        System.out.println("6. Keluar");
-        System.out.print("Pilih menu (1-6): ");
+        System.out.println("4. Setor Tunai");
+        System.out.println("5. Pembayaran");
+        System.out.println("6. Cek History Bank");
+        System.out.println("7. Keluar");
+        System.out.print("Pilih menu (1-7): ");
     }
 
     private void tampilkanMenuPembayaran(){
@@ -88,9 +89,10 @@ public class AtmProgram {
                 case 1 -> cekSaldo(tempDataAtm);
                 case 2 -> transfer(tempDataAtm);
                 case 3 -> tarikTunai(tempDataAtm);
-                case 4 -> memilihMenuPembayaran(tempDataAtm);
-                case 5 -> historyAtm(tempDataAtm);
-                case 6 -> {
+                case 4 -> setorTunai(tempDataAtm);
+                case 5 -> memilihMenuPembayaran(tempDataAtm);
+                case 6 -> historyAtm(tempDataAtm);
+                case 7 -> {
                     menulisDataATMKeFile(FILE_ATM);
                     System.out.println("Terima kasih telah menggunakan layanan ATM. Sampai jumpa!");
                     System.exit(0);
@@ -177,6 +179,24 @@ public class AtmProgram {
                 Thread.sleep(2000);
             } catch (InterruptedException e){
                 e.printStackTrace();
+            }
+        }
+    }
+
+    private void setorTunai(AtmData noKartu){
+        boolean loop = true;
+        while (loop){
+            System.out.println("Hanya Menerima Saldo Kelipatan 50.000 dan 100.000");
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e){
+                e.printStackTrace();
+            }
+            System.out.print("Silahkan masukan uang yang akan di setorkan: ");
+            double setor = scanner.nextDouble();
+            if (setor % 50000 == 0){
+                noKartu.setSaldo(noKartu.getSaldo() + setor);
+                loop = false;
             }
         }
     }
