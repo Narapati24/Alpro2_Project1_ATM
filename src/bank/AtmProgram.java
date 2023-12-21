@@ -302,11 +302,11 @@ public class AtmProgram {
             if (log == null){
                 fileController.createNewLog(dataATM.getNomorKartu());
                 log = fileController.findDataLogATM(dataATM.getNomorKartu());
-                log.setLog("[Transfer", 0);
+                log.setLog("[Pembayaran Listrik", 0);
                 log.setSum(String.valueOf(jumlah), 0);
                 log.setDate(time.formatDateTime(), 0);
             } else {
-                log.setNewLog("[Transfer", jumlah, time.formatDateTime());
+                log.setNewLog("[Pembayaran Listrik", jumlah, time.formatDateTime());
             }
             System.out.println("Anda berhasil Membayar listrik! \n" +
                     "Sisa Saldo anda sebesar: Rp." + dataATM.getSaldo());
@@ -323,25 +323,29 @@ public class AtmProgram {
             switch (number){
                 case (1) ->{
                     if (saldo > 55000) {
-                        dataATM.setSaldo(saldo - 55000);
+                        jumlah = 55000;
+                        dataATM.setSaldo(saldo - jumlah);
                         filled = true;
                     }
                 }
                 case (2) ->{
                     if (saldo > 110000) {
-                        dataATM.setSaldo(saldo - 110000);
+                        jumlah = 110000;
+                        dataATM.setSaldo(saldo - jumlah);
                         filled = true;
                     }
                 }
                 case (3) ->{
                     if (saldo > 275000) {
-                        dataATM.setSaldo(saldo - 275000);
+                        jumlah = 275000;
+                        dataATM.setSaldo(saldo - jumlah);
                         filled = true;
                     }
                 }
                 case (4) ->{
                     if (saldo > 550000) {
-                        dataATM.setSaldo(saldo - 550000);
+                        jumlah = 550000;
+                        dataATM.setSaldo(saldo - jumlah);
                         filled = true;
                     }
                 }

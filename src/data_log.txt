@@ -1,3 +1,0 @@
-Nomor Kartu: 4444 3333 2222 1111, Log: [Transfer: 50000.0,Date: 13/12/2023],[Tarik Tunai: 100000.0,Date: 14/12/2023],]
-Nomor Kartu: 7410 9638 1475 8529, Log: [Transfer: 50000.0,Date: 2023/12/21 10-08-15],]
-Nomor Kartu: 1475 9638 7410 8529, Log: [Transfer: 50000.0,Date: 2023/12/21 10-16-19],]
