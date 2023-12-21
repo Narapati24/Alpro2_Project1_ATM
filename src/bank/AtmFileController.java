@@ -24,6 +24,27 @@ public class AtmFileController {
         }
     }
 
+    public void writeDataLogATM(){
+        StringBuilder data = new StringBuilder();
+        for (AtmLogData logData : dataATMLogArray) {
+            data.append("Nomor Kartu: ").append(logData.getNomorKartu()).append(", Log: ");
+            for (int i = 0; i < logData.getLog().length; i++){
+                data.append(logData.getLog()[i]).append(": ").append(logData.getSum()[i]).append(",Date: ").append(logData.getDate()[i]).append("],");
+            }
+            data.append("]\n");
+        }
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(FILE_LOG_ATM))) {
+            writer.write(data.toString());
+        } catch (IOException e){
+            e.printStackTrace();
+        }
+    }
+
+    public void createNewLog(String nomorKartu){
+        this.dataATMLogArray = Arrays.copyOf(dataATMLogArray, dataATMLogArray.length + 1);
+        this.dataATMLogArray[dataATMLogArray.length - 1] = new AtmLogData(nomorKartu, 1);
+    }
+
     public AtmLogData[] readDataLogATM() {
         try (BufferedReader br = new BufferedReader(new FileReader(FILE_LOG_ATM))){
             String line;

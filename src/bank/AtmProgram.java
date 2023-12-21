@@ -1,17 +1,14 @@
 package bank;
 
-import java.io.*;
-import java.util.Arrays;
 import java.util.Scanner;
 
 public class AtmProgram {
     private final Scanner scanner = new Scanner(System.in);
     private final AtmView view = new AtmView();
-    private AtmFileController fileController = new AtmFileController();
+    private final AtmFileController fileController = new AtmFileController();
+    private final Time time = new Time();
 
     public AtmProgram() {
-
-
         if (fileController.getDataATMArray() != null) {
             AtmData tempDataAtm = login();
             memilihMenuUtama(tempDataAtm);
@@ -40,6 +37,7 @@ public class AtmProgram {
                 case 6 -> historyAtm(tempDataAtm);
                 case 7 -> {
                     fileController.writeDataATM();
+                    fileController.writeDataLogATM();
                     System.out.println("Terima kasih telah menggunakan layanan ATM. Sampai jumpa!");
                     System.exit(0);
                 }
@@ -106,6 +104,16 @@ public class AtmProgram {
             } else {
                 dataATM.setSaldo(dataATM.getSaldo() - transfer);
                 targetNoKartu.setSaldo(targetNoKartu.getSaldo() + transfer);
+                AtmLogData log = fileController.findDataLogATM(dataATM.getNomorKartu());
+                if (log == null){
+                    fileController.createNewLog(dataATM.getNomorKartu());
+                    log = fileController.findDataLogATM(dataATM.getNomorKartu());
+                    log.setLog("[Transfer", 0);
+                    log.setSum(String.valueOf(transfer), 0);
+                    log.setDate(time.formatDateTime(), 0);
+                } else {
+                    log.setNewLog("[Transfer", transfer, time.formatDateTime());
+                }
                 System.out.println("Rp. " + transfer + " berhasil di transfer \n" +
                         "Sisa saldo anda sebesar Rp. " + dataATM.getSaldo());
             }
@@ -120,6 +128,16 @@ public class AtmProgram {
             System.out.println("Maaf Saldo anda tidak mencukupi!");
         } else {
             dataATM.setSaldo(tempSaldo - nominal);
+            AtmLogData log = fileController.findDataLogATM(dataATM.getNomorKartu());
+            if (log == null){
+                fileController.createNewLog(dataATM.getNomorKartu());
+                log = fileController.findDataLogATM(dataATM.getNomorKartu());
+                log.setLog("[Tarik Tunai", 0);
+                log.setSum(String.valueOf(nominal), 0);
+                log.setDate(time.formatDateTime(), 0);
+            } else {
+                log.setNewLog("[Transfer", nominal, time.formatDateTime());
+            }
             System.out.println("Sisa saldo anda Rp. " + dataATM.getSaldo());
             try {
                 Thread.sleep(2000);
@@ -129,7 +147,7 @@ public class AtmProgram {
         }
     }
 
-    private void setorTunai(AtmData noKartu){
+    private void setorTunai(AtmData dataATM){
         boolean loop = true;
         while (loop){
             System.out.println("Hanya Menerima Saldo Kelipatan 50.000 dan 100.000");
@@ -141,7 +159,17 @@ public class AtmProgram {
             System.out.print("Silahkan masukan uang yang akan di setorkan: ");
             double setor = scanner.nextDouble();
             if (setor % 50000 == 0){
-                noKartu.setSaldo(noKartu.getSaldo() + setor);
+                dataATM.setSaldo(dataATM.getSaldo() + setor);
+                AtmLogData log = fileController.findDataLogATM(dataATM.getNomorKartu());
+                if (log == null){
+                    fileController.createNewLog(dataATM.getNomorKartu());
+                    log = fileController.findDataLogATM(dataATM.getNomorKartu());
+                    log.setLog("[Setor Tunai", 0);
+                    log.setSum(String.valueOf(setor), 0);
+                    log.setDate(time.formatDateTime(), 0);
+                } else {
+                    log.setNewLog("[Setor Tunai", setor, time.formatDateTime());
+                }
                 loop = false;
             }
         }
@@ -156,45 +184,50 @@ public class AtmProgram {
         }
     }
 
-    private void topupPulsa(AtmData dataAtm) {
+    private void topupPulsa(AtmData dataATM) {
         System.out.print("Isikan Nomor Tujuan Top Up");
         scanner.next();
         int number;
-        double saldoIni = dataAtm.getSaldo();
+        double saldoIni = dataATM.getSaldo();
         boolean filled = false;
+        double jumlah = 0;
         do {
             view.menuTopUp();
             number = scanner.nextInt();
             switch (number) {
                 case (1) -> {
                     if (saldoIni > 5500){
-                        dataAtm.setSaldo(saldoIni - 5500);
+                        jumlah = 5500;
+                        dataATM.setSaldo(saldoIni - jumlah);
                         filled = true;
                     }
                 }
                 case (2) -> {
                     if (saldoIni > 11000){
-                        dataAtm.setSaldo(saldoIni - 11000);
+                        jumlah = 11000;
+                        dataATM.setSaldo(saldoIni - jumlah);
                         filled = true;
                     }
                 }
                 case (3) -> {
                     if (saldoIni > 27500){
-                        dataAtm.setSaldo(saldoIni - 27500);
+                        jumlah = 27500;
+                        dataATM.setSaldo(saldoIni - jumlah);
                         filled = true;
                     }
                 }
                 case (4) -> {
                     if (saldoIni > 55000){
-                        dataAtm.setSaldo(saldoIni - 55000);
+                        jumlah = 55000;
+                        dataATM.setSaldo(saldoIni - jumlah);
                         filled = true;
                     }
                 }
                 case (5) -> {
                     System.out.print("Jumlah yang ingin di top up Rp. ");
-                    double jumlah = scanner.nextDouble();
+                    jumlah = scanner.nextDouble();
                     if (saldoIni > jumlah){
-                        dataAtm.setSaldo(saldoIni - jumlah);
+                        dataATM.setSaldo(saldoIni - jumlah);
                         filled = true;
                     }
                 }
@@ -208,38 +241,53 @@ public class AtmProgram {
             }
         } while (!filled);
         if (number != 6){
+            AtmLogData log = fileController.findDataLogATM(dataATM.getNomorKartu());
+            if (log == null){
+                fileController.createNewLog(dataATM.getNomorKartu());
+                log = fileController.findDataLogATM(dataATM.getNomorKartu());
+                log.setLog("[Topup Pulsa", 0);
+                log.setSum(String.valueOf(jumlah), 0);
+                log.setDate(time.formatDateTime(), 0);
+            } else {
+                log.setNewLog("[Topup Pulsa", jumlah, time.formatDateTime());
+            }
             System.out.println("Top Up Berhasil");
         }
     }
 
-    private void pembayaranListrik(AtmData dataAtm) {
-        double saldo = dataAtm.getSaldo();
+    private void pembayaranListrik(AtmData dataATM) {
+        double saldo = dataATM.getSaldo();
         view.menuPembayaranListrik();
         int number = scanner.nextInt();
         boolean filled = false;
+        double jumlah = 0;
         do {
             switch (number){
                 case (1) ->{
                     if (saldo > 55000) {
-                        dataAtm.setSaldo(saldo - 55000);
+                        jumlah = 55000;
+                        dataATM.setSaldo(saldo - jumlah);
                         filled = true;
                     }
                 }
                 case (2) ->{
                     if (saldo > 110000) {
-                        dataAtm.setSaldo(saldo - 110000);
+                        jumlah = 110000;
+                        dataATM.setSaldo(saldo - jumlah);
                         filled = true;
                     }
                 }
                 case (3) ->{
                     if (saldo > 275000) {
-                        dataAtm.setSaldo(saldo - 275000);
+                        jumlah = 275000;
+                        dataATM.setSaldo(saldo - jumlah);
                         filled = true;
                     }
                 }
                 case (4) ->{
                     if (saldo > 550000) {
-                        dataAtm.setSaldo(saldo - 550000);
+                        jumlah = 550000;
+                        dataATM.setSaldo(saldo - jumlah);
                         filled = true;
                     }
                 }
@@ -250,39 +298,50 @@ public class AtmProgram {
             }
         } while (!filled);
         if (number != 5){
+            AtmLogData log = fileController.findDataLogATM(dataATM.getNomorKartu());
+            if (log == null){
+                fileController.createNewLog(dataATM.getNomorKartu());
+                log = fileController.findDataLogATM(dataATM.getNomorKartu());
+                log.setLog("[Transfer", 0);
+                log.setSum(String.valueOf(jumlah), 0);
+                log.setDate(time.formatDateTime(), 0);
+            } else {
+                log.setNewLog("[Transfer", jumlah, time.formatDateTime());
+            }
             System.out.println("Anda berhasil Membayar listrik! \n" +
-                    "Sisa Saldo anda sebesar: Rp." + dataAtm.getSaldo());
+                    "Sisa Saldo anda sebesar: Rp." + dataATM.getSaldo());
         }
     }
 
-    private void pembayaranPDAM(AtmData dataAtm) {
-        double saldo = dataAtm.getSaldo();
+    private void pembayaranPDAM(AtmData dataATM) {
+        double saldo = dataATM.getSaldo();
         view.menuPembayaranPDAM();
         int number = scanner.nextInt();
         boolean filled = false;
+        double jumlah = 0;
         do {
             switch (number){
                 case (1) ->{
                     if (saldo > 55000) {
-                        dataAtm.setSaldo(saldo - 55000);
+                        dataATM.setSaldo(saldo - 55000);
                         filled = true;
                     }
                 }
                 case (2) ->{
                     if (saldo > 110000) {
-                        dataAtm.setSaldo(saldo - 110000);
+                        dataATM.setSaldo(saldo - 110000);
                         filled = true;
                     }
                 }
                 case (3) ->{
                     if (saldo > 275000) {
-                        dataAtm.setSaldo(saldo - 275000);
+                        dataATM.setSaldo(saldo - 275000);
                         filled = true;
                     }
                 }
                 case (4) ->{
                     if (saldo > 550000) {
-                        dataAtm.setSaldo(saldo - 550000);
+                        dataATM.setSaldo(saldo - 550000);
                         filled = true;
                     }
                 }
@@ -293,8 +352,18 @@ public class AtmProgram {
             }
         } while (!filled);
         if (number != 5){
+            AtmLogData log = fileController.findDataLogATM(dataATM.getNomorKartu());
+            if (log == null){
+                fileController.createNewLog(dataATM.getNomorKartu());
+                log = fileController.findDataLogATM(dataATM.getNomorKartu());
+                log.setLog("[PDAM", 0);
+                log.setSum(String.valueOf(jumlah), 0);
+                log.setDate(time.formatDateTime(), 0);
+            } else {
+                log.setNewLog("[PDAM", jumlah, time.formatDateTime());
+            }
             System.out.println("Anda berhasil Membayar PDAM! \n" +
-                    "Sisa Saldo anda sebesar: Rp." + dataAtm.getSaldo());
+                    "Sisa Saldo anda sebesar: Rp." + dataATM.getSaldo());
         }
     }
 
