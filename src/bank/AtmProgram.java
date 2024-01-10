@@ -12,7 +12,6 @@ public class AtmProgram {
         if (fileController.getDataATMArray() != null) {
             AtmData tempDataAtm = login();
             memilihMenuUtama(tempDataAtm);
-
         } else {
             System.out.println("Gagal membaca data ATM dari file. Program akan keluar.");
         }
@@ -136,7 +135,7 @@ public class AtmProgram {
                 log.setSum(String.valueOf(nominal), 0);
                 log.setDate(time.formatDateTime(), 0);
             } else {
-                log.setNewLog("[Transfer", nominal, time.formatDateTime());
+                log.setNewLog("[Tarik Tunai", nominal, time.formatDateTime());
             }
             System.out.println("Sisa saldo anda Rp. " + dataATM.getSaldo());
             try {
